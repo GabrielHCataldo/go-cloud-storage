@@ -1,15 +1,11 @@
 package cstorage
 
 type FileMimeType string
-type Projection int
+type storageSelected string
 
 const (
-	// ProjectionDefault returns all fields of objects.
-	ProjectionDefault Projection = iota
-	// ProjectionFull returns all fields of objects.
-	ProjectionFull
-	// ProjectionNoACL returns all fields of objects except for Owner and ACL.
-	ProjectionNoACL
+	googleStorage storageSelected = "GOOGLE"
+	awsStorage    storageSelected = "AWS"
 )
 const (
 	FileMimeTypePdf  FileMimeType = "application/pdf"
@@ -30,20 +26,6 @@ const (
 
 func (f FileMimeType) String() string {
 	return string(f)
-}
-
-func (p Projection) Int() int {
-	return int(p)
-}
-
-func (f FileMimeType) IsEnumValid() bool {
-	switch f {
-	case FileMimeTypePdf, FileMimeTypeText, FileMimeTypeAvif, FileMimeTypeCss, FileMimeTypeGif, FileMimeTypeHtml,
-		FileMimeTypeJpeg, FileMimeTypeJs, FileMimeTypeJson, FileMimeTypePng, FileMimeTypeSvg, FileMimeTypeWasm,
-		FileMimeTypeWebp, FileMimeTypeXml:
-		return true
-	}
-	return false
 }
 
 func (f FileMimeType) Extension() string {
@@ -79,12 +61,4 @@ func (f FileMimeType) Extension() string {
 	default:
 		return ""
 	}
-}
-
-func (p Projection) IsEnumValid() bool {
-	switch p {
-	case ProjectionDefault, ProjectionFull, ProjectionNoACL:
-		return true
-	}
-	return false
 }
