@@ -4,6 +4,7 @@ import (
 	"github.com/GabrielHCataldo/go-helper/helper"
 )
 
+// OptionFind bucket object search options
 type OptionFind struct {
 	// Delimiter returns results in a directory-like fashion.
 	// Results will contain only objects whose names, aside from the
@@ -54,55 +55,66 @@ type OptionFind struct {
 	MatchGlob string
 }
 
-func NewFind() OptionFind {
+// NewOptionFind creates a new OptionFind instance
+func NewOptionFind() OptionFind {
 	return OptionFind{}
 }
 
+// SetDelimiter sets value for the Delimiter field
 func (f OptionFind) SetDelimiter(s string) OptionFind {
 	f.Delimiter = s
 	return f
 }
 
+// SetPrefix sets value for the Prefix field
 func (f OptionFind) SetPrefix(s string) OptionFind {
 	f.Prefix = s
 	return f
 }
 
+// SetVersions sets value for the Versions field
 func (f OptionFind) SetVersions(b bool) OptionFind {
 	f.Versions = b
 	return f
 }
 
+// SetAttrSelection sets value for the attrSelection field
 func (f OptionFind) SetAttrSelection(ss []string) OptionFind {
 	f.attrSelection = ss
 	return f
 }
 
+// SetStartOffset sets value for the StartOffset field
 func (f OptionFind) SetStartOffset(s string) OptionFind {
 	f.StartOffset = s
 	return f
 }
 
+// SetEndOffset sets value for the EndOffset field
 func (f OptionFind) SetEndOffset(s string) OptionFind {
 	f.EndOffset = s
 	return f
 }
 
+// SetProjection sets value for the Projection field
 func (f OptionFind) SetProjection(p Projection) OptionFind {
 	f.Projection = p
 	return f
 }
 
+// SetIncludeTrailingDelimiter sets value for the IncludeTrailingDelimiter field
 func (f OptionFind) SetIncludeTrailingDelimiter(b bool) OptionFind {
 	f.IncludeTrailingDelimiter = b
 	return f
 }
 
+// SetMatchGlob sets value for the MatchGlob field
 func (f OptionFind) SetMatchGlob(s string) OptionFind {
 	f.MatchGlob = s
 	return f
 }
 
+// GetOptionFindByParams assembles the OptionFind object from optional parameters.
 func GetOptionFindByParams(opts []OptionFind) OptionFind {
 	result := OptionFind{}
 	for _, opt := range opts {
