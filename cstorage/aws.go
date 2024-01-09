@@ -5,36 +5,44 @@ import (
 	"context"
 	"fmt"
 	"github.com/GabrielHCataldo/go-helper/helper"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 type awsS3Client struct {
-	*s3.S3
+	config aws.Config
+	*s3.Client
 }
 
 type iAwsS3Client interface {
 	CreateBucket(ctx context.Context, input CreateBucketInput) error
 	PutObject(ctx context.Context, input PutObjectInput) error
-	GetObjectByKey(ctx context.Context, bucketName, key string) (*Object, error)
-	GetObjectUrl(bucketName, key string) string
-	ListObjects(ctx context.Context, bucketName string, opts ...OptsListObjects) ([]ObjectSummary, error)
+	GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error)
+	GetObjectUrl(bucket, key string) string
+	ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error)
 	DeleteObject(ctx context.Context, input DeleteObjectInput) error
 	DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error
-	DeleteBucket(ctx context.Context, bucketName string) error
+	DeleteBucket(ctx context.Context, bucket string) error
 }
 
-func newAwsS3StorageClient(cfgs ...*aws.Config) (iAwsS3Client, error) {
-	nSession, err := session.NewSession(cfgs...)
+func newAwsS3StorageClient(cfg aws.Config) iAwsS3Client {
 	return awsS3Client{
-		S3: s3.New(nSession),
-	}, err
+		Client: s3.NewFromConfig(cfg),
+		config: cfg,
+	}
 }
 
 func (a awsS3Client) CreateBucket(ctx context.Context, input CreateBucketInput) error {
-	_, err := a.S3.CreateBucketWithContext(ctx, &s3.CreateBucketInput{
+	region := a.config.Region
+	if helper.IsNotEmpty(input.Location) {
+		region = input.Location
+	}
+	_, err := a.Client.CreateBucket(ctx, &s3.CreateBucketInput{
 		Bucket: aws.String(input.Bucket),
+		CreateBucketConfiguration: &types.CreateBucketConfiguration{
+			LocationConstraint: types.BucketLocationConstraint(region),
+		},
 	})
 	return err
 }
@@ -44,7 +52,7 @@ func (a awsS3Client) PutObject(ctx context.Context, input PutObjectInput) error 
 	if helper.IsNotNil(err) {
 		return err
 	}
-	_, err = a.S3.PutObjectWithContext(ctx, &s3.PutObjectInput{
+	_, err = a.Client.PutObject(ctx, &s3.PutObjectInput{
 		Body:   bytes.NewReader(bytesContent),
 		Bucket: aws.String(input.Bucket),
 		//ContentLength: aws.Int64(int64(len(bytesContent))),
@@ -54,9 +62,9 @@ func (a awsS3Client) PutObject(ctx context.Context, input PutObjectInput) error 
 	return err
 }
 
-func (a awsS3Client) GetObjectByKey(ctx context.Context, bucketName, key string) (*Object, error) {
-	obj, err := a.S3.GetObjectWithContext(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
+func (a awsS3Client) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
+	obj, err := a.Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
 	if helper.IsNotNil(err) {
@@ -64,19 +72,19 @@ func (a awsS3Client) GetObjectByKey(ctx context.Context, bucketName, key string)
 	}
 	objResult := parseAwsS3StorageObject(obj)
 	objResult.Key = key
-	objResult.Url = a.GetObjectUrl(bucketName, key)
+	objResult.Url = a.GetObjectUrl(bucket, key)
 	return &objResult, nil
 }
 
-func (a awsS3Client) GetObjectUrl(bucketName, key string) string {
+func (a awsS3Client) GetObjectUrl(bucket, key string) string {
 	url := "https://%s.amazonaws.com/%s/%s"
-	return fmt.Sprintf(url, a.S3.ResolvedRegion, bucketName, key)
+	return fmt.Sprintf(url, a.config.Region, bucket, key)
 }
 
-func (a awsS3Client) ListObjects(ctx context.Context, bucketName string, opts ...OptsListObjects) ([]ObjectSummary, error) {
+func (a awsS3Client) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
 	opt := GetOptListObjectsByParams(opts)
-	objs, err := a.S3.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
-		Bucket:    aws.String(bucketName),
+	objs, err := a.Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+		Bucket:    aws.String(bucket),
 		Delimiter: aws.String(opt.Delimiter),
 		Prefix:    aws.String(opt.Prefix),
 	})
@@ -86,14 +94,14 @@ func (a awsS3Client) ListObjects(ctx context.Context, bucketName string, opts ..
 	var result []ObjectSummary
 	for _, obj := range objs.Contents {
 		objResult := parseAwsS3StorageObjectSummary(obj)
-		objResult.Url = a.GetObjectUrl(bucketName, objResult.Key)
+		objResult.Url = a.GetObjectUrl(bucket, objResult.Key)
 		result = append(result, objResult)
 	}
 	return result, nil
 }
 
 func (a awsS3Client) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
-	_, err := a.S3.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+	_, err := a.Client.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(input.Bucket),
 		Key:    aws.String(input.Key),
 	})
@@ -101,7 +109,7 @@ func (a awsS3Client) DeleteObject(ctx context.Context, input DeleteObjectInput) 
 }
 
 func (a awsS3Client) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
-	objs, err := a.S3.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
+	objs, err := a.Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
 		Bucket: aws.String(input.Bucket),
 		Prefix: aws.String(input.Prefix),
 	})
@@ -120,9 +128,9 @@ func (a awsS3Client) DeleteObjectsByPrefix(ctx context.Context, input DeletePref
 	return nil
 }
 
-func (a awsS3Client) DeleteBucket(ctx context.Context, bucketName string) error {
-	_, err := a.S3.DeleteBucketWithContext(ctx, &s3.DeleteBucketInput{
-		Bucket: aws.String(bucketName),
+func (a awsS3Client) DeleteBucket(ctx context.Context, bucket string) error {
+	_, err := a.Client.DeleteBucket(ctx, &s3.DeleteBucketInput{
+		Bucket: aws.String(bucket),
 	})
 	return err
 }

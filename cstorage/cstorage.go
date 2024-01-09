@@ -2,7 +2,7 @@ package cstorage
 
 import (
 	"context"
-	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"google.golang.org/api/option"
 )
 
@@ -12,6 +12,8 @@ type CreateBucketInput struct {
 	Bucket string
 	// ProjectId project id where the bucket will be created (required only google storage)
 	ProjectId string
+	// Location bucket, if empty using default region
+	Location string
 }
 
 // PutObjectInput input for creating/updating an object in the bucket
@@ -126,13 +128,12 @@ func NewGoogleStorage(ctx context.Context, opts ...option.ClientOption) (CStorag
 }
 
 // NewAwsS3Storage new instance of connection with AWS S3 storage, to close it just use Disconnect() or SimpleDisconnect()
-func NewAwsS3Storage(cfgs ...*aws.Config) (CStorage, error) {
-	client, err := newAwsS3StorageClient(cfgs...)
+func NewAwsS3Storage(cfg aws.Config) (CStorage, error) {
 	return cStorage{
 		storageSelected:     awsStorage,
 		googleStorageClient: nil,
-		awsS3:               client,
-	}, err
+		awsS3:               newAwsS3StorageClient(cfg),
+	}, nil
 }
 
 func (g cStorage) CreateBucket(ctx context.Context, input CreateBucketInput) error {

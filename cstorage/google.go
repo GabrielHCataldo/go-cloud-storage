@@ -36,7 +36,9 @@ func newGoogleStorageClient(ctx context.Context, opts ...option.ClientOption) (i
 }
 
 func (g googleStorageClient) CreateBucket(ctx context.Context, input CreateBucketInput) error {
-	return g.Client.Bucket(input.Bucket).Create(ctx, input.ProjectId, nil)
+	return g.Client.Bucket(input.Bucket).Create(ctx, input.ProjectId, &storage.BucketAttrs{
+		Location: input.Location,
+	})
 }
 
 func (g googleStorageClient) PutObject(ctx context.Context, input PutObjectInput) error {

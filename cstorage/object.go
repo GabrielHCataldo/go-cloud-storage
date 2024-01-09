@@ -3,7 +3,8 @@ package cstorage
 import (
 	"cloud.google.com/go/storage"
 	"github.com/GabrielHCataldo/go-helper/helper"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"io"
 	"time"
 )
@@ -42,7 +43,7 @@ func parseAwsS3StorageObject(obj *s3.GetObjectOutput) Object {
 	}
 }
 
-func parseAwsS3StorageObjectSummary(obj *s3.Object) ObjectSummary {
+func parseAwsS3StorageObjectSummary(obj types.Object) ObjectSummary {
 	return ObjectSummary{
 		Key:            helper.ConvertPointerToValue(obj.Key),
 		Size:           helper.ConvertPointerToValue(obj.Size),
