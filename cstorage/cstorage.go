@@ -23,7 +23,7 @@ type PutObjectInput struct {
 	// Key of the object that will be created (required)
 	Key string
 	// MimeType type of content of the object that will be created (required)
-	MimeType FileMimeType
+	MimeType MimeType
 	// Content of the object that will be created (required)
 	Content any
 }

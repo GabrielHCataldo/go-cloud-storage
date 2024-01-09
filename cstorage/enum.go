@@ -1,6 +1,6 @@
 package cstorage
 
-type FileMimeType string
+type MimeType string
 type storageSelected string
 
 const (
@@ -8,55 +8,55 @@ const (
 	awsStorage    storageSelected = "AWS"
 )
 const (
-	FileMimeTypePdf  FileMimeType = "application/pdf"
-	FileMimeTypeText FileMimeType = "text/plain"
-	FileMimeTypeAvif FileMimeType = "image/avif"
-	FileMimeTypeCss  FileMimeType = "text/css; charset=utf-8"
-	FileMimeTypeGif  FileMimeType = "image/gif"
-	FileMimeTypeHtml FileMimeType = "text/html; charset=utf-8"
-	FileMimeTypeJpeg FileMimeType = "image/jpeg"
-	FileMimeTypeJs   FileMimeType = "text/javascript; charset=utf-8"
-	FileMimeTypeJson FileMimeType = "application/json"
-	FileMimeTypePng  FileMimeType = "image/png"
-	FileMimeTypeSvg  FileMimeType = "image/svg+xml"
-	FileMimeTypeWasm FileMimeType = "application/wasm"
-	FileMimeTypeWebp FileMimeType = "image/webp"
-	FileMimeTypeXml  FileMimeType = "text/xml; charset=utf-8"
+	MimeTypePdf  MimeType = "application/pdf"
+	MimeTypeText MimeType = "text/plain"
+	MimeTypeAvif MimeType = "image/avif"
+	MimeTypeCss  MimeType = "text/css; charset=utf-8"
+	MimeTypeGif  MimeType = "image/gif"
+	MimeTypeHtml MimeType = "text/html; charset=utf-8"
+	MimeTypeJpeg MimeType = "image/jpeg"
+	MimeTypeJs   MimeType = "text/javascript; charset=utf-8"
+	MimeTypeJson MimeType = "application/json"
+	MimeTypePng  MimeType = "image/png"
+	MimeTypeSvg  MimeType = "image/svg+xml"
+	MimeTypeWasm MimeType = "application/wasm"
+	MimeTypeWebp MimeType = "image/webp"
+	MimeTypeXml  MimeType = "text/xml; charset=utf-8"
 )
 
-func (f FileMimeType) String() string {
+func (f MimeType) String() string {
 	return string(f)
 }
 
-func (f FileMimeType) Extension() string {
+func (f MimeType) Extension() string {
 	switch f {
-	case FileMimeTypePdf:
+	case MimeTypePdf:
 		return ".pdf"
-	case FileMimeTypeText:
+	case MimeTypeText:
 		return ".txt"
-	case FileMimeTypeAvif:
+	case MimeTypeAvif:
 		return ".avif"
-	case FileMimeTypeCss:
+	case MimeTypeCss:
 		return ".css"
-	case FileMimeTypeGif:
+	case MimeTypeGif:
 		return ".gif"
-	case FileMimeTypeHtml:
+	case MimeTypeHtml:
 		return ".html"
-	case FileMimeTypeJpeg:
+	case MimeTypeJpeg:
 		return ".jpeg"
-	case FileMimeTypeJs:
+	case MimeTypeJs:
 		return ".js"
-	case FileMimeTypeJson:
+	case MimeTypeJson:
 		return ".json"
-	case FileMimeTypePng:
+	case MimeTypePng:
 		return ".png"
-	case FileMimeTypeWasm:
+	case MimeTypeWasm:
 		return ".wasm"
-	case FileMimeTypeWebp:
+	case MimeTypeWebp:
 		return ".webp"
-	case FileMimeTypeXml:
+	case MimeTypeXml:
 		return ".xml"
-	case FileMimeTypeSvg:
+	case MimeTypeSvg:
 		return ".svg"
 	default:
 		return ""

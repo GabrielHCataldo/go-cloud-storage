@@ -12,7 +12,7 @@ func TestCStorageCreateBucket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
-			err := cstorage.CreateBucket(ctx, tt.input)
+			err := tt.cstorage.CreateBucket(ctx, tt.input)
 			if (err != nil) != tt.wantErr {
 				logger.Errorf("CreateBucket() err = %v, wantErr = %v", err, tt.wantErr)
 				t.Fail()
@@ -21,16 +21,46 @@ func TestCStorageCreateBucket(t *testing.T) {
 	}
 }
 
-func TestCStorage_PutObject(t *testing.T) {
-
+func TestCStoragePutObject(t *testing.T) {
+	for _, tt := range initListTestPutObject() {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			err := tt.cstorage.PutObject(ctx, tt.input)
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("PutObject() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+			}
+		})
+	}
 }
 
-func TestCStorage_PutObjects(t *testing.T) {
-
+func TestCStoragePutObjects(t *testing.T) {
+	for _, tt := range initListTestPutObject() {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			output := tt.cstorage.PutObjects(ctx, tt.input)
+			logger.Errorf("PutObjects() output = %v", output)
+		})
+	}
 }
 
-func TestCStorage_GetObjectByKey(t *testing.T) {
-
+func TestCStorageGetObjectByKey(t *testing.T) {
+	for _, tt := range initListTestGetObjectByKey() {
+		t.Run(tt.name, func(t *testing.T) {
+			initObject(tt.cstorage)
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			result, err := tt.cstorage.GetObjectByKey(ctx, bucketNameDefault, tt.key)
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("GetObjectByKey() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+				return
+			}
+			logger.Infof("GetObjectByKey() result = %v, err = %v", result, err)
+		})
+	}
 }
 
 func TestCStorage_ListObjects(t *testing.T) {

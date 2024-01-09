@@ -15,7 +15,7 @@ type ObjectPage struct {
 type Object struct {
 	Key            string
 	Url            string
-	MimeType       FileMimeType
+	MimeType       MimeType
 	Content        io.Reader
 	Size           int64
 	VersionId      string
@@ -35,7 +35,7 @@ func (o Object) ParseContent(dest any) error {
 
 func parseAwsS3StorageObject(obj *s3.GetObjectOutput) Object {
 	return Object{
-		MimeType:       FileMimeType(helper.ConvertPointerToValue(obj.ContentType)),
+		MimeType:       MimeType(helper.ConvertPointerToValue(obj.ContentType)),
 		Content:        obj.Body,
 		Size:           helper.ConvertPointerToValue(obj.ContentLength),
 		VersionId:      helper.ConvertPointerToValue(obj.VersionId),
@@ -61,7 +61,7 @@ func parseGoogleStorageObject(obj *storage.ObjectAttrs) Object {
 	}
 	return Object{
 		Key:            obj.Name,
-		MimeType:       FileMimeType(obj.ContentType),
+		MimeType:       MimeType(obj.ContentType),
 		Content:        helper.SimpleConvertToReader(obj.ContentEncoding),
 		Size:           obj.Size,
 		LastModifiedAt: lastModifiedAt,

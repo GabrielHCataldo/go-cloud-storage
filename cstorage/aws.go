@@ -53,9 +53,8 @@ func (a awsS3Client) PutObject(ctx context.Context, input PutObjectInput) error 
 		return err
 	}
 	_, err = a.Client.PutObject(ctx, &s3.PutObjectInput{
-		Body:   bytes.NewReader(bytesContent),
-		Bucket: aws.String(input.Bucket),
-		//ContentLength: aws.Int64(int64(len(bytesContent))),
+		Body:        bytes.NewReader(bytesContent),
+		Bucket:      aws.String(input.Bucket),
 		ContentType: aws.String(input.MimeType.String()),
 		Key:         aws.String(input.Key),
 	})
