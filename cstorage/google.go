@@ -78,18 +78,18 @@ func (g googleStorageClient) ListObjects(ctx context.Context, bucket string, opt
 		Prefix:    opt.Prefix,
 	})
 	var result []ObjectSummary
+	var err error
 	for {
 		obj, err := objs.Next()
 		if errors.Is(err, iterator.Done) {
 			break
-		} else if helper.IsNotNil(err) {
-			return nil, err
+		} else if helper.IsNotNil(obj) {
+			objResult := parseGoogleStorageObjectSummary(obj)
+			objResult.Url = g.GetObjectUrl(bucket, obj.Name)
+			result = append(result, objResult)
 		}
-		objResult := parseGoogleStorageObjectSummary(obj)
-		objResult.Url = g.GetObjectUrl(bucket, obj.Name)
-		result = append(result, objResult)
 	}
-	return result, nil
+	return result, err
 }
 
 func (g googleStorageClient) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
@@ -100,19 +100,17 @@ func (g googleStorageClient) DeleteObject(ctx context.Context, input DeleteObjec
 func (g googleStorageClient) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
 	bkt := g.Client.Bucket(input.Bucket)
 	objs := bkt.Objects(ctx, &storage.Query{Prefix: input.Prefix})
+	var err error
 	for {
 		obj, err := objs.Next()
 		if errors.Is(err, iterator.Done) {
 			break
 		} else if helper.IsNotNil(err) {
-			return err
+			return ErrPrefixNotExists
 		}
 		err = bkt.Object(obj.Name).Delete(ctx)
-		if helper.IsNotNil(err) {
-			return err
-		}
 	}
-	return nil
+	return err
 }
 
 func (g googleStorageClient) DeleteBucket(ctx context.Context, bucket string) error {
@@ -124,10 +122,6 @@ func (g googleStorageClient) Disconnect() error {
 }
 
 func (g googleStorageClient) SimpleDisconnect() {
-	err := g.Disconnect()
-	if err != nil {
-		logger.Error("error disconnect google storage:", err)
-		return
-	}
+	_ = g.Disconnect()
 	logger.Info("connection to google storage closed.")
 }

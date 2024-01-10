@@ -2,6 +2,7 @@ package cstorage
 
 import (
 	"context"
+	"github.com/GabrielHCataldo/go-helper/helper"
 	"github.com/GabrielHCataldo/go-logger/logger"
 	"testing"
 	"time"
@@ -49,7 +50,9 @@ func TestCStoragePutObjects(t *testing.T) {
 func TestCStorageGetObjectByKey(t *testing.T) {
 	for _, tt := range initListTestGetObjectByKey() {
 		t.Run(tt.name, func(t *testing.T) {
-			initObject(tt.cstorage)
+			if !tt.wantErr {
+				initObject(tt.cstorage)
+			}
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
 			result, err := tt.cstorage.GetObjectByKey(ctx, bucketNameDefault, tt.key)
@@ -57,44 +60,151 @@ func TestCStorageGetObjectByKey(t *testing.T) {
 				logger.Errorf("GetObjectByKey() err = %v, wantErr = %v", err, tt.wantErr)
 				t.Fail()
 				return
+			} else if helper.IsNotNil(result) {
+				var destContent testStruct
+				_ = result.ParseContent(&destContent)
+				logger.Infof("GetObjectByKey() result = %v, err = %v", destContent, err)
+			} else {
+				logger.Infof("GetObjectByKey() result = %v, err = %v", result, err)
 			}
-			logger.Infof("GetObjectByKey() result = %v, err = %v", result, err)
 		})
 	}
 }
 
-func TestCStorage_ListObjects(t *testing.T) {
-
+func TestCStorageListObjects(t *testing.T) {
+	for _, tt := range initListTestListObjects() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initObject(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			result, err := tt.cstorage.ListObjects(ctx, bucketNameDefault, tt.opts)
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("ListObjects() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+				return
+			}
+			logger.Infof("ListObjects() result = %v, err = %v", result, err)
+		})
+	}
 }
 
-func TestCStorage_DeleteObject(t *testing.T) {
-
+func TestCStorageDeleteObject(t *testing.T) {
+	for _, tt := range initListTestDeleteObject() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initObject(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			err := tt.cstorage.DeleteObject(ctx, tt.input)
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("DeleteObject() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+			}
+		})
+	}
 }
 
-func TestCStorage_DeleteObjects(t *testing.T) {
-
+func TestCStorageDeleteObjects(t *testing.T) {
+	for _, tt := range initListTestDeleteObject() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initObject(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			output := tt.cstorage.DeleteObjects(ctx, tt.input)
+			logger.Errorf("DeleteObjects() output = %v", output)
+		})
+	}
 }
 
-func TestCStorage_DeleteObjectsByPrefix(t *testing.T) {
-
+func TestCStorageDeleteObjectsByPrefix(t *testing.T) {
+	for _, tt := range initListTestDeleteObjectsByPrefix() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initObject(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			err := tt.cstorage.DeleteObjectsByPrefix(ctx, tt.input)
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("DeleteObjectsByPrefix() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+			}
+		})
+	}
 }
 
-func TestCStorage_DeleteObjectsByPrefixes(t *testing.T) {
-
+func TestCStorageDeleteObjectsByPrefixes(t *testing.T) {
+	for _, tt := range initListTestDeleteObjectsByPrefix() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initObject(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			output := tt.cstorage.DeleteObjectsByPrefixes(ctx, tt.input)
+			logger.Errorf("DeleteObjectsByPrefixes() output = %v", output)
+		})
+	}
 }
 
-func TestCStorage_DeleteBucket(t *testing.T) {
-
+func TestCStorageDeleteBucket(t *testing.T) {
+	for _, tt := range initListTestDeleteBucket() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initBucket(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			err := tt.cstorage.DeleteBucket(ctx, tt.bucket)
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("DeleteBucket() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+			}
+		})
+	}
 }
 
-func TestCStorage_DeleteBuckets(t *testing.T) {
-
+func TestCStorageDeleteBuckets(t *testing.T) {
+	for _, tt := range initListTestDeleteBucket() {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.wantErr {
+				initBucket(tt.cstorage)
+			}
+			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+			defer cancel()
+			output := tt.cstorage.DeleteBuckets(ctx, tt.bucket)
+			logger.Errorf("DeleteBuckets() output = %v", output)
+		})
+	}
 }
 
-func TestCStorage_Disconnect(t *testing.T) {
-
+func TestCStorageDisconnect(t *testing.T) {
+	for _, tt := range initListTestDisconnect() {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr {
+				tt.cstorage.SimpleDisconnect()
+			}
+			err := tt.cstorage.Disconnect()
+			if (err != nil) != tt.wantErr {
+				logger.Errorf("Disconnect() err = %v, wantErr = %v", err, tt.wantErr)
+				t.Fail()
+			}
+		})
+	}
 }
 
-func TestCStorage_SimpleDisconnect(t *testing.T) {
-
+func TestCStorageSimpleDisconnect(t *testing.T) {
+	for _, tt := range initListTestDisconnect() {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.wantErr {
+				tt.cstorage.SimpleDisconnect()
+			}
+			tt.cstorage.SimpleDisconnect()
+		})
+	}
 }

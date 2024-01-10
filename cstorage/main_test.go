@@ -13,6 +13,7 @@ import (
 
 const googleStorageProjectId = "GOOGLE_STORAGE_PROJECT_ID"
 const bucketNameDefault = "go-cloud-storage"
+const bucketNameToDeleteDefault = "go-cloud-storage-to-delete"
 const objectKeyDefault = "object-test"
 
 type testStruct struct {
@@ -39,6 +40,40 @@ type testPutObject struct {
 type testGetObjectByKey struct {
 	name     string
 	key      string
+	cstorage CStorage
+	wantErr  bool
+}
+
+type testListObjects struct {
+	name     string
+	cstorage CStorage
+	opts     OptsListObjects
+	wantErr  bool
+}
+
+type testDeleteObject struct {
+	name     string
+	cstorage CStorage
+	input    DeleteObjectInput
+	wantErr  bool
+}
+
+type testDeleteObjectsByPrefix struct {
+	name     string
+	cstorage CStorage
+	input    DeletePrefixInput
+	wantErr  bool
+}
+
+type testDeleteBucket struct {
+	name     string
+	cstorage CStorage
+	bucket   string
+	wantErr  bool
+}
+
+type testDisconnect struct {
+	name     string
 	cstorage CStorage
 	wantErr  bool
 }
@@ -76,6 +111,20 @@ func initAwsS3Storage() CStorage {
 		Location: "sa-east-1",
 	})
 	return cs
+}
+
+func initBucket(cs CStorage) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+	defer cancel()
+	err := cs.CreateBucket(ctx, CreateBucketInput{
+		Bucket:    bucketNameToDeleteDefault,
+		ProjectId: os.Getenv(googleStorageProjectId),
+	})
+	if helper.IsNotNil(err) {
+		logger.Error("error init bucket to delete on storage:", err)
+	} else {
+		logger.Info("init bucket to delete on storage completed successfully!")
+	}
 }
 
 func initObject(cs CStorage) {
@@ -190,6 +239,154 @@ func initListTestGetObjectByKey() []testGetObjectByKey {
 	}
 }
 
+func initListTestListObjects() []testListObjects {
+	return []testListObjects{
+		{
+			name:     "success google",
+			cstorage: initGoogleStorage(),
+			wantErr:  false,
+		},
+		{
+			name:     "success empty google",
+			cstorage: initGoogleStorage(),
+			opts:     initTestOptsListObjects(),
+			wantErr:  false,
+		},
+		{
+			name:     "success aws",
+			cstorage: initAwsS3Storage(),
+			wantErr:  false,
+		},
+		{
+			name:     "success empty aws",
+			cstorage: initAwsS3Storage(),
+			opts:     initTestOptsListObjects(),
+			wantErr:  false,
+		},
+		{
+			name:     "failed instance",
+			cstorage: cStorage{},
+			wantErr:  true,
+		},
+	}
+}
+
+func initListTestDeleteObject() []testDeleteObject {
+	return []testDeleteObject{
+		{
+			name:     "success google",
+			cstorage: initGoogleStorage(),
+			input:    initTestDeleteObjectInput(),
+			wantErr:  false,
+		},
+		{
+			name:     "success aws",
+			input:    initTestDeleteObjectInput(),
+			cstorage: initAwsS3Storage(),
+			wantErr:  false,
+		},
+		{
+			name:     "failed google",
+			cstorage: initGoogleStorage(),
+			wantErr:  true,
+		},
+		{
+			name:     "failed aws",
+			cstorage: initAwsS3Storage(),
+			wantErr:  true,
+		},
+		{
+			name:     "failed instance",
+			cstorage: cStorage{},
+			wantErr:  true,
+		},
+	}
+}
+
+func initListTestDeleteObjectsByPrefix() []testDeleteObjectsByPrefix {
+	return []testDeleteObjectsByPrefix{
+		{
+			name:     "success google",
+			cstorage: initGoogleStorage(),
+			input:    initTestDeletePrefixInput(),
+			wantErr:  false,
+		},
+		{
+			name:     "success aws",
+			input:    initTestDeletePrefixInput(),
+			cstorage: initAwsS3Storage(),
+			wantErr:  false,
+		},
+		{
+			name:     "failed google",
+			cstorage: initGoogleStorage(),
+			wantErr:  true,
+		},
+		{
+			name:     "failed aws",
+			cstorage: initAwsS3Storage(),
+			wantErr:  true,
+		},
+		{
+			name:     "failed instance",
+			cstorage: cStorage{},
+			wantErr:  true,
+		},
+	}
+}
+
+func initListTestDeleteBucket() []testDeleteBucket {
+	return []testDeleteBucket{
+		{
+			name:     "success google",
+			cstorage: initGoogleStorage(),
+			bucket:   bucketNameToDeleteDefault,
+			wantErr:  false,
+		},
+		{
+			name:     "success aws",
+			cstorage: initAwsS3Storage(),
+			bucket:   bucketNameToDeleteDefault,
+			wantErr:  false,
+		},
+		{
+			name:     "failed google",
+			cstorage: initGoogleStorage(),
+			wantErr:  true,
+		},
+		{
+			name:     "failed aws",
+			cstorage: initAwsS3Storage(),
+			wantErr:  true,
+		},
+		{
+			name:     "failed instance",
+			cstorage: cStorage{},
+			wantErr:  true,
+		},
+	}
+}
+
+func initListTestDisconnect() []testDisconnect {
+	return []testDisconnect{
+		{
+			name:     "success google",
+			cstorage: initGoogleStorage(),
+			wantErr:  false,
+		},
+		{
+			name:     "success aws",
+			cstorage: initAwsS3Storage(),
+			wantErr:  false,
+		},
+		{
+			name:     "failed instance",
+			cstorage: cStorage{},
+			wantErr:  true,
+		},
+	}
+}
+
 func initTestStruct() *testStruct {
 	return &testStruct{
 		Name:      "Foo Bar",
@@ -213,5 +410,23 @@ func initTestPutObjectInput() PutObjectInput {
 		Key:      helper.SimpleConvertToString(time.Now().UnixMilli()),
 		MimeType: MimeTypeJson,
 		Content:  initTestStruct(),
+	}
+}
+
+func initTestOptsListObjects() OptsListObjects {
+	return NewOptsListObjects().SetPrefix("test").SetDelimiter("test")
+}
+
+func initTestDeleteObjectInput() DeleteObjectInput {
+	return DeleteObjectInput{
+		Bucket: bucketNameDefault,
+		Key:    objectKeyDefault,
+	}
+}
+
+func initTestDeletePrefixInput() DeletePrefixInput {
+	return DeletePrefixInput{
+		Bucket: bucketNameDefault,
+		Prefix: "",
 	}
 }

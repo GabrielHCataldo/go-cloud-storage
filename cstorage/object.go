@@ -52,33 +52,19 @@ func parseAwsS3StorageObjectSummary(obj types.Object) ObjectSummary {
 }
 
 func parseGoogleStorageObject(obj *storage.ObjectAttrs) Object {
-	lastModifiedAt := obj.Created
-	if helper.IsAfter(obj.Updated, lastModifiedAt) {
-		lastModifiedAt = obj.Updated
-	}
-	if helper.IsAfter(obj.Deleted, lastModifiedAt) {
-		lastModifiedAt = obj.Deleted
-	}
 	return Object{
 		Key:            obj.Name,
 		MimeType:       MimeType(obj.ContentType),
-		Content:        helper.SimpleConvertToReader(obj.ContentEncoding),
+		Content:        helper.SimpleConvertToReader(obj.MD5),
 		Size:           obj.Size,
-		LastModifiedAt: lastModifiedAt,
+		LastModifiedAt: obj.Updated,
 	}
 }
 
 func parseGoogleStorageObjectSummary(obj *storage.ObjectAttrs) ObjectSummary {
-	lastModifiedAt := obj.Created
-	if helper.IsAfter(obj.Updated, lastModifiedAt) {
-		lastModifiedAt = obj.Updated
-	}
-	if helper.IsAfter(obj.Deleted, lastModifiedAt) {
-		lastModifiedAt = obj.Deleted
-	}
 	return ObjectSummary{
 		Key:            obj.Name,
 		Size:           obj.Size,
-		LastModifiedAt: lastModifiedAt,
+		LastModifiedAt: obj.Updated,
 	}
 }

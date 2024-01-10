@@ -82,21 +82,21 @@ func (a awsS3Client) GetObjectUrl(bucket, key string) string {
 
 func (a awsS3Client) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
 	opt := GetOptListObjectsByParams(opts)
-	objs, err := a.Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+	input := &s3.ListObjectsV2Input{
 		Bucket:    aws.String(bucket),
 		Delimiter: aws.String(opt.Delimiter),
 		Prefix:    aws.String(opt.Prefix),
-	})
-	if helper.IsNotNil(err) {
-		return nil, err
 	}
+	objs, err := a.Client.ListObjectsV2(ctx, input)
 	var result []ObjectSummary
-	for _, obj := range objs.Contents {
-		objResult := parseAwsS3StorageObjectSummary(obj)
-		objResult.Url = a.GetObjectUrl(bucket, objResult.Key)
-		result = append(result, objResult)
+	if helper.IsNotNil(objs) {
+		for _, obj := range objs.Contents {
+			objResult := parseAwsS3StorageObjectSummary(obj)
+			objResult.Url = a.GetObjectUrl(bucket, objResult.Key)
+			result = append(result, objResult)
+		}
 	}
-	return result, nil
+	return result, err
 }
 
 func (a awsS3Client) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
@@ -112,19 +112,16 @@ func (a awsS3Client) DeleteObjectsByPrefix(ctx context.Context, input DeletePref
 		Bucket: aws.String(input.Bucket),
 		Prefix: aws.String(input.Prefix),
 	})
-	if helper.IsNotNil(err) {
-		return err
+	if helper.IsNil(objs) || helper.IsEmpty(objs.Contents) {
+		return ErrPrefixNotExists
 	}
 	for _, obj := range objs.Contents {
 		err = a.DeleteObject(ctx, DeleteObjectInput{
 			Bucket: input.Bucket,
 			Key:    helper.ConvertPointerToValue(obj.Key),
 		})
-		if helper.IsNotNil(err) {
-			return err
-		}
 	}
-	return nil
+	return err
 }
 
 func (a awsS3Client) DeleteBucket(ctx context.Context, bucket string) error {
