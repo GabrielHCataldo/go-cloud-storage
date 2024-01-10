@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"io"
 )
 
 type awsS3Client struct {
@@ -69,10 +70,12 @@ func (a awsS3Client) GetObjectByKey(ctx context.Context, bucket, key string) (*O
 	if helper.IsNotNil(err) {
 		return nil, err
 	}
+	bs, err := io.ReadAll(obj.Body)
 	objResult := parseAwsS3StorageObject(obj)
 	objResult.Key = key
 	objResult.Url = a.GetObjectUrl(bucket, key)
-	return &objResult, nil
+	objResult.Content = bs
+	return &objResult, err
 }
 
 func (a awsS3Client) GetObjectUrl(bucket, key string) string {

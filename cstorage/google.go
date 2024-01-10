@@ -9,6 +9,7 @@ import (
 	"github.com/GabrielHCataldo/go-logger/logger"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+	"io"
 )
 
 type googleStorageClient struct {
@@ -55,13 +56,20 @@ func (g googleStorageClient) PutObject(ctx context.Context, input PutObjectInput
 }
 
 func (g googleStorageClient) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
-	obj, err := g.Client.Bucket(bucket).Object(key).Attrs(ctx)
+	obj := g.Client.Bucket(bucket).Object(key)
+	attrs, err := obj.Attrs(ctx)
 	if helper.IsNotNil(err) {
 		return nil, err
 	}
-	objResult := parseGoogleStorageObject(obj)
+	var bs []byte
+	reader, err := obj.NewReader(ctx)
+	if helper.IsNotNil(reader) {
+		bs, err = io.ReadAll(reader)
+	}
+	objResult := parseGoogleStorageObject(attrs)
 	objResult.Url = g.GetObjectUrl(bucket, key)
-	return &objResult, nil
+	objResult.Content = bs
+	return &objResult, err
 }
 
 func (g googleStorageClient) GetObjectUrl(bucket, key string) string {

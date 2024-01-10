@@ -88,6 +88,7 @@ type cStorage struct {
 	awsS3               iAwsS3Client
 }
 
+// CStorage interface de integração com armazenamento em nuvem como Google Storage e AWS S3
 type CStorage interface {
 	// CreateBucket creates the Bucket in the project.
 	CreateBucket(ctx context.Context, input CreateBucketInput) error
