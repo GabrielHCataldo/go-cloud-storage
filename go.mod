@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/storage v1.36.0
 	github.com/GabrielHCataldo/go-helper v1.0.7
 	github.com/GabrielHCataldo/go-logger v1.1.1
-	github.com/aws/aws-sdk-go v1.49.17
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/config v1.26.3
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0

@@ -26,55 +26,55 @@ type testStruct struct {
 type testCreateBucket struct {
 	name     string
 	input    CreateBucketInput
-	cstorage CStorage
+	cstorage Interface
 	wantErr  bool
 }
 
 type testPutObject struct {
 	name     string
 	input    PutObjectInput
-	cstorage CStorage
+	cstorage Interface
 	wantErr  bool
 }
 
 type testGetObjectByKey struct {
 	name     string
 	key      string
-	cstorage CStorage
+	cstorage Interface
 	wantErr  bool
 }
 
 type testListObjects struct {
 	name     string
-	cstorage CStorage
+	cstorage Interface
 	opts     OptsListObjects
 	wantErr  bool
 }
 
 type testDeleteObject struct {
 	name     string
-	cstorage CStorage
+	cstorage Interface
 	input    DeleteObjectInput
 	wantErr  bool
 }
 
 type testDeleteObjectsByPrefix struct {
 	name     string
-	cstorage CStorage
+	cstorage Interface
 	input    DeletePrefixInput
 	wantErr  bool
 }
 
 type testDeleteBucket struct {
 	name     string
-	cstorage CStorage
+	cstorage Interface
 	bucket   string
 	wantErr  bool
 }
 
 type testDisconnect struct {
 	name     string
-	cstorage CStorage
+	cstorage Interface
 	wantErr  bool
 }
 
@@ -82,7 +82,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func initGoogleStorage() CStorage {
+func initGoogleStorage() Interface {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	cs, err := NewGoogleStorage(ctx, option.WithCredentialsFile("../firebase-admin-sdk.json"))
@@ -93,7 +93,7 @@ func initGoogleStorage() CStorage {
 	return cs
 }
 
-func initAwsS3Storage() CStorage {
+func initAwsS3Storage() Interface {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -113,7 +113,7 @@ func initAwsS3Storage() CStorage {
 	return cs
 }
 
-func initBucket(cs CStorage) {
+func initBucket(cs Interface) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	err := cs.CreateBucket(ctx, CreateBucketInput{
@@ -127,7 +127,7 @@ func initBucket(cs CStorage) {
 	}
 }
 
-func initObject(cs CStorage) {
+func initObject(cs Interface) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	err := cs.PutObject(ctx, PutObjectInput{
@@ -169,7 +169,7 @@ func initListTestCreateBucket() []testCreateBucket {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -201,7 +201,7 @@ func initListTestPutObject() []testPutObject {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -233,7 +233,7 @@ func initListTestGetObjectByKey() []testGetObjectByKey {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -265,7 +265,7 @@ func initListTestListObjects() []testListObjects {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -297,7 +297,7 @@ func initListTestDeleteObject() []testDeleteObject {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -329,7 +329,7 @@ func initListTestDeleteObjectsByPrefix() []testDeleteObjectsByPrefix {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -361,7 +361,7 @@ func initListTestDeleteBucket() []testDeleteBucket {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}
@@ -381,7 +381,7 @@ func initListTestDisconnect() []testDisconnect {
 		},
 		{
 			name:     "failed instance",
-			cstorage: cStorage{},
+			cstorage: cstorage{},
 			wantErr:  true,
 		},
 	}

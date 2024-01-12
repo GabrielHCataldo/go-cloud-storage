@@ -82,14 +82,14 @@ type DeleteBucketsOutput struct {
 	Err error
 }
 
-type cStorage struct {
+type cstorage struct {
 	storageSelected     storageSelected
 	googleStorageClient iGoogleStorageClient
 	awsS3               iAwsS3Client
 }
 
-// CStorage interface de integração com armazenamento em nuvem como Google Storage e AWS S3
-type CStorage interface {
+// Interface integration with cloud storage such as Google Storage and AWS S3
+type Interface interface {
 	// CreateBucket creates the Bucket in the project.
 	CreateBucket(ctx context.Context, input CreateBucketInput) error
 	// PutObject set the value passed in the indicated bucket
@@ -119,9 +119,9 @@ type CStorage interface {
 }
 
 // NewGoogleStorage new instance of connection with Google storage, to close it just use Disconnect() or SimpleDisconnect()
-func NewGoogleStorage(ctx context.Context, opts ...option.ClientOption) (CStorage, error) {
+func NewGoogleStorage(ctx context.Context, opts ...option.ClientOption) (Interface, error) {
 	client, err := newGoogleStorageClient(ctx, opts...)
-	return cStorage{
+	return cstorage{
 		storageSelected:     googleStorage,
 		googleStorageClient: client,
 		awsS3:               nil,
@@ -129,40 +129,40 @@ func NewGoogleStorage(ctx context.Context, opts ...option.ClientOption) (CStorag
 }
 
 // NewAwsS3Storage new instance of connection with AWS S3 storage, to close it just use Disconnect() or SimpleDisconnect()
-func NewAwsS3Storage(cfg aws.Config) (CStorage, error) {
-	return cStorage{
+func NewAwsS3Storage(cfg aws.Config) (Interface, error) {
+	return cstorage{
 		storageSelected:     awsStorage,
 		googleStorageClient: nil,
 		awsS3:               newAwsS3StorageClient(cfg),
 	}, nil
 }
 
-func (g cStorage) CreateBucket(ctx context.Context, input CreateBucketInput) error {
-	switch g.storageSelected {
+func (c cstorage) CreateBucket(ctx context.Context, input CreateBucketInput) error {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.CreateBucket(ctx, input)
+		return c.googleStorageClient.CreateBucket(ctx, input)
 	case awsStorage:
-		return g.awsS3.CreateBucket(ctx, input)
+		return c.awsS3.CreateBucket(ctx, input)
 	default:
 		return ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) PutObject(ctx context.Context, input PutObjectInput) error {
-	switch g.storageSelected {
+func (c cstorage) PutObject(ctx context.Context, input PutObjectInput) error {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.PutObject(ctx, input)
+		return c.googleStorageClient.PutObject(ctx, input)
 	case awsStorage:
-		return g.awsS3.PutObject(ctx, input)
+		return c.awsS3.PutObject(ctx, input)
 	default:
 		return ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) PutObjects(ctx context.Context, inputs ...PutObjectInput) []PutObjectOutput {
+func (c cstorage) PutObjects(ctx context.Context, inputs ...PutObjectInput) []PutObjectOutput {
 	var result []PutObjectOutput
 	for _, input := range inputs {
-		err := g.PutObject(ctx, input)
+		err := c.PutObject(ctx, input)
 		result = append(result, PutObjectOutput{
 			Bucket: input.Bucket,
 			Key:    input.Key,
@@ -172,43 +172,43 @@ func (g cStorage) PutObjects(ctx context.Context, inputs ...PutObjectInput) []Pu
 	return result
 }
 
-func (g cStorage) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
-	switch g.storageSelected {
+func (c cstorage) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.GetObjectByKey(ctx, bucket, key)
+		return c.googleStorageClient.GetObjectByKey(ctx, bucket, key)
 	case awsStorage:
-		return g.awsS3.GetObjectByKey(ctx, bucket, key)
+		return c.awsS3.GetObjectByKey(ctx, bucket, key)
 	default:
 		return nil, ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
-	switch g.storageSelected {
+func (c cstorage) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.ListObjects(ctx, bucket, opts...)
+		return c.googleStorageClient.ListObjects(ctx, bucket, opts...)
 	case awsStorage:
-		return g.awsS3.ListObjects(ctx, bucket, opts...)
+		return c.awsS3.ListObjects(ctx, bucket, opts...)
 	default:
 		return nil, ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
-	switch g.storageSelected {
+func (c cstorage) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.DeleteObject(ctx, input)
+		return c.googleStorageClient.DeleteObject(ctx, input)
 	case awsStorage:
-		return g.awsS3.DeleteObject(ctx, input)
+		return c.awsS3.DeleteObject(ctx, input)
 	default:
 		return ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) DeleteObjects(ctx context.Context, inputs ...DeleteObjectInput) []DeleteObjectsOutput {
+func (c cstorage) DeleteObjects(ctx context.Context, inputs ...DeleteObjectInput) []DeleteObjectsOutput {
 	var result []DeleteObjectsOutput
 	for _, input := range inputs {
-		err := g.DeleteObject(ctx, input)
+		err := c.DeleteObject(ctx, input)
 		result = append(result, DeleteObjectsOutput{
 			Bucket: input.Bucket,
 			Key:    input.Key,
@@ -218,21 +218,21 @@ func (g cStorage) DeleteObjects(ctx context.Context, inputs ...DeleteObjectInput
 	return result
 }
 
-func (g cStorage) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
-	switch g.storageSelected {
+func (c cstorage) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.DeleteObjectsByPrefix(ctx, input)
+		return c.googleStorageClient.DeleteObjectsByPrefix(ctx, input)
 	case awsStorage:
-		return g.awsS3.DeleteObjectsByPrefix(ctx, input)
+		return c.awsS3.DeleteObjectsByPrefix(ctx, input)
 	default:
 		return ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) DeleteObjectsByPrefixes(ctx context.Context, inputs ...DeletePrefixInput) []DeletePrefixOutput {
+func (c cstorage) DeleteObjectsByPrefixes(ctx context.Context, inputs ...DeletePrefixInput) []DeletePrefixOutput {
 	var result []DeletePrefixOutput
 	for _, input := range inputs {
-		err := g.DeleteObjectsByPrefix(ctx, input)
+		err := c.DeleteObjectsByPrefix(ctx, input)
 		result = append(result, DeletePrefixOutput{
 			Bucket: input.Bucket,
 			Prefix: input.Prefix,
@@ -242,21 +242,21 @@ func (g cStorage) DeleteObjectsByPrefixes(ctx context.Context, inputs ...DeleteP
 	return result
 }
 
-func (g cStorage) DeleteBucket(ctx context.Context, bucket string) error {
-	switch g.storageSelected {
+func (c cstorage) DeleteBucket(ctx context.Context, bucket string) error {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.DeleteBucket(ctx, bucket)
+		return c.googleStorageClient.DeleteBucket(ctx, bucket)
 	case awsStorage:
-		return g.awsS3.DeleteBucket(ctx, bucket)
+		return c.awsS3.DeleteBucket(ctx, bucket)
 	default:
 		return ErrWithoutStorageClient
 	}
 }
 
-func (g cStorage) DeleteBuckets(ctx context.Context, buckets ...string) []DeleteBucketsOutput {
+func (c cstorage) DeleteBuckets(ctx context.Context, buckets ...string) []DeleteBucketsOutput {
 	var result []DeleteBucketsOutput
 	for _, bucket := range buckets {
-		err := g.DeleteBucket(ctx, bucket)
+		err := c.DeleteBucket(ctx, bucket)
 		result = append(result, DeleteBucketsOutput{
 			Bucket: bucket,
 			Err:    err,
@@ -265,10 +265,10 @@ func (g cStorage) DeleteBuckets(ctx context.Context, buckets ...string) []Delete
 	return result
 }
 
-func (g cStorage) Disconnect() error {
-	switch g.storageSelected {
+func (c cstorage) Disconnect() error {
+	switch c.storageSelected {
 	case googleStorage:
-		return g.googleStorageClient.Disconnect()
+		return c.googleStorageClient.Disconnect()
 	case awsStorage:
 		return nil
 	default:
@@ -276,9 +276,9 @@ func (g cStorage) Disconnect() error {
 	}
 }
 
-func (g cStorage) SimpleDisconnect() {
-	switch g.storageSelected {
+func (c cstorage) SimpleDisconnect() {
+	switch c.storageSelected {
 	case googleStorage:
-		g.googleStorageClient.SimpleDisconnect()
+		c.googleStorageClient.SimpleDisconnect()
 	}
 }
