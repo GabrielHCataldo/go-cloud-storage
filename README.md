@@ -3,7 +3,7 @@ Go Cloud Storage
 <!--suppress ALL -->
 <img align="right" src="gopher-cloud.png" alt="">
 
-[![Project status](https://img.shields.io/badge/version-v1.0.0-vividgreen.svg)](https://github.com/GabrielHCataldo/go-cloud-storage/releases/tag/v1.0.0)
+[![Project status](https://img.shields.io/badge/version-v1.0.1-vividgreen.svg)](https://github.com/GabrielHCataldo/go-cloud-storage/releases/tag/v1.0.1)
 [![Go Report Card](https://goreportcard.com/badge/github.com/GabrielHCataldo/go-cloud-storage)](https://goreportcard.com/report/github.com/GabrielHCataldo/go-cloud-storage)
 [![Coverage Status](https://coveralls.io/repos/GabrielHCataldo/go-cloud-storage/badge.svg?branch=main&service=github)](https://coveralls.io/github/GabrielHCataldo/go-cloud-storage?branch=main)
 [![Open Source Helpers](https://www.codetriage.com/gabrielhcataldo/go-cloud-storage/badges/users.svg)](https://www.codetriage.com/gabrielhcataldo/go-cloud-storage)
@@ -57,12 +57,12 @@ For more details on the examples, visit [All examples link](https://github/Gabri
 package main
 
 import (
-	"context"
-	"github.com/GabrielHCataldo/go-cloud-storage/cstorage"
-	"github.com/GabrielHCataldo/go-helper/helper"
-	"github.com/GabrielHCataldo/go-logger/logger"
-	"google.golang.org/api/option"
-	"time"
+    "context"
+    "github.com/GabrielHCataldo/go-cloud-storage/cstorage"
+    "github.com/GabrielHCataldo/go-helper/helper"
+    "github.com/GabrielHCataldo/go-logger/logger"
+    "google.golang.org/api/option"
+    "time"
 )
 
 func main() {
@@ -75,7 +75,7 @@ func main() {
     }
 }
 
-func newInstanceGoogleStorage() (cstorage.Interface, error) {
+func newInstanceGoogleStorage() (*cstorage.CStorage, error) {
     ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
     defer cancel()
     return cstorage.NewGoogleStorage(ctx, option.WithCredentialsFile("firebase-admin-sdk.json"))
@@ -92,16 +92,16 @@ Output:
 package main
 
 import (
-	"context"
-	"github.com/GabrielHCataldo/go-cloud-storage/cstorage"
-	"github.com/GabrielHCataldo/go-helper/helper"
-	"github.com/GabrielHCataldo/go-logger/logger"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"time"
+    "context"
+    "github.com/GabrielHCataldo/go-cloud-storage/cstorage"
+    "github.com/GabrielHCataldo/go-helper/helper"
+    "github.com/GabrielHCataldo/go-logger/logger"
+    "github.com/aws/aws-sdk-go-v2/config"
+    "time"
 )
 
 func main() {
-    _, err := newInstanceAwsS3Storage()
+    cs, err := newInstanceAwsS3Storage()
     if helper.IsNotNil(err) {
         logger.Error("error create new instance cloud storage:", err)
     } else {
@@ -110,7 +110,7 @@ func main() {
     }
 }
 
-func newInstanceAwsS3Storage() (cstorage.Interface, error) {
+func newInstanceAwsS3Storage() (*cstorage.CStorage, error) {
     ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
     defer cancel()
     cfg, err := config.LoadDefaultConfig(ctx)
