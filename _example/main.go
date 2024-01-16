@@ -39,7 +39,7 @@ func main() {
 	deletePrefix()
 }
 
-func newInstanceAwsS3Storage() (cstorage.Interface, error) {
+func newInstanceAwsS3Storage() (*cstorage.CStorage, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -49,7 +49,7 @@ func newInstanceAwsS3Storage() (cstorage.Interface, error) {
 	return cstorage.NewAwsS3Storage(cfg)
 }
 
-func newInstanceGoogleStorage() (cstorage.Interface, error) {
+func newInstanceGoogleStorage() (*cstorage.CStorage, error) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	return cstorage.NewGoogleStorage(ctx, option.WithCredentialsFile("firebase-admin-sdk.json"))
