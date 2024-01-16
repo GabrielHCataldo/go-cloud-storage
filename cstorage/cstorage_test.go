@@ -42,7 +42,7 @@ func TestCStoragePutObjects(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
 			output := tt.cstorage.PutObjects(ctx, tt.input)
-			logger.Errorf("PutObjects() output = %v", output)
+			logger.Infof("PutObjects() output = %v", output)
 		})
 	}
 }
@@ -67,6 +67,15 @@ func TestCStorageGetObjectByKey(t *testing.T) {
 			} else {
 				logger.Infof("GetObjectByKey() result = %v, err = %v", result, err)
 			}
+		})
+	}
+}
+
+func TestCStorageGetObjectUrl(t *testing.T) {
+	for _, tt := range initListTestGetObjectByKey() {
+		t.Run(tt.name, func(t *testing.T) {
+			output := tt.cstorage.GetObjectUrl(bucketNameDefault, tt.key)
+			logger.Infof("GetObjectUrl() output = %v", output)
 		})
 	}
 }
@@ -116,7 +125,7 @@ func TestCStorageDeleteObjects(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
 			output := tt.cstorage.DeleteObjects(ctx, tt.input)
-			logger.Errorf("DeleteObjects() output = %v", output)
+			logger.Infof("DeleteObjects() output = %v", output)
 		})
 	}
 }
@@ -147,7 +156,7 @@ func TestCStorageDeleteObjectsByPrefixes(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
 			output := tt.cstorage.DeleteObjectsByPrefixes(ctx, tt.input)
-			logger.Errorf("DeleteObjectsByPrefixes() output = %v", output)
+			logger.Infof("DeleteObjectsByPrefixes() output = %v", output)
 		})
 	}
 }
@@ -178,7 +187,7 @@ func TestCStorageDeleteBuckets(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
 			output := tt.cstorage.DeleteBuckets(ctx, tt.bucket)
-			logger.Errorf("DeleteBuckets() output = %v", output)
+			logger.Infof("DeleteBuckets() output = %v", output)
 		})
 	}
 }

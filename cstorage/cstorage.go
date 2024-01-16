@@ -157,6 +157,18 @@ func (c CStorage) GetObjectByKey(ctx context.Context, bucket, key string) (*Obje
 	}
 }
 
+// GetObjectUrl returns the object public url
+func (c CStorage) GetObjectUrl(bucket, key string) string {
+	switch c.storageSelected {
+	case googleStorage:
+		return c.googleStorageClient.GetObjectUrl(bucket, key)
+	case awsStorage:
+		return c.awsS3.GetObjectUrl(bucket, key)
+	default:
+		return ""
+	}
+}
+
 // ListObjects return list objects by bucket, custom query using opts param (OptsListObjects)
 func (c CStorage) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
 	switch c.storageSelected {
