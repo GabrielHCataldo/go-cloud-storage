@@ -4,8 +4,8 @@ go 1.21.3
 
 require (
 	cloud.google.com/go/storage v1.36.0
-	github.com/GabrielHCataldo/go-helper v1.1.7
-	github.com/GabrielHCataldo/go-logger v1.1.1
+	github.com/GabrielHCataldo/go-helper v1.2.1
+	github.com/GabrielHCataldo/go-logger v1.1.3
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/config v1.26.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0
@@ -39,7 +39,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.16.0 // indirect
+	github.com/go-playground/validator/v10 v10.17.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect

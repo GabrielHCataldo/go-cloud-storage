@@ -210,9 +210,6 @@ func TestCStorageDisconnect(t *testing.T) {
 func TestCStorageSimpleDisconnect(t *testing.T) {
 	for _, tt := range initListTestDisconnect() {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.wantErr {
-				tt.cstorage.SimpleDisconnect()
-			}
 			tt.cstorage.SimpleDisconnect()
 		})
 	}
