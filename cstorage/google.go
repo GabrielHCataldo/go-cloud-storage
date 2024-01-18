@@ -131,5 +131,5 @@ func (g googleStorageClient) Disconnect() error {
 
 func (g googleStorageClient) SimpleDisconnect() {
 	_ = g.Disconnect()
-	logger.Info("connection to google storage closed.")
+	logger.InfoSkipCaller(3, "connection to google storage closed.")
 }
