@@ -21,7 +21,7 @@ type iAwsS3Client interface {
 	PutObject(ctx context.Context, input PutObjectInput) error
 	GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error)
 	GetObjectUrl(bucket, key string) string
-	ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error)
+	ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) ([]ObjectSummary, error)
 	DeleteObject(ctx context.Context, input DeleteObjectInput) error
 	DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error
 	DeleteBucket(ctx context.Context, bucket string) error
@@ -83,7 +83,7 @@ func (a awsS3Client) GetObjectUrl(bucket, key string) string {
 	return fmt.Sprintf(url, a.config.Region, bucket, key)
 }
 
-func (a awsS3Client) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
+func (a awsS3Client) ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) ([]ObjectSummary, error) {
 	opt := GetOptListObjectsByParams(opts)
 	input := &s3.ListObjectsV2Input{
 		Bucket:    aws.String(bucket),

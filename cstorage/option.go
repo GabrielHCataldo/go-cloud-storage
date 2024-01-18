@@ -23,26 +23,29 @@ type OptsListObjects struct {
 }
 
 // NewOptsListObjects creates a new OptsListObjects instance
-func NewOptsListObjects() OptsListObjects {
-	return OptsListObjects{}
+func NewOptsListObjects() *OptsListObjects {
+	return &OptsListObjects{}
 }
 
 // SetDelimiter sets value for the Delimiter field
-func (o OptsListObjects) SetDelimiter(s string) OptsListObjects {
+func (o *OptsListObjects) SetDelimiter(s string) *OptsListObjects {
 	o.Delimiter = s
 	return o
 }
 
 // SetPrefix sets value for the Prefix field
-func (o OptsListObjects) SetPrefix(s string) OptsListObjects {
+func (o *OptsListObjects) SetPrefix(s string) *OptsListObjects {
 	o.Prefix = s
 	return o
 }
 
 // GetOptListObjectsByParams assembles the OptsGoogleFind object from optional parameters.
-func GetOptListObjectsByParams(opts []OptsListObjects) OptsListObjects {
-	result := OptsListObjects{}
+func GetOptListObjectsByParams(opts []*OptsListObjects) *OptsListObjects {
+	result := &OptsListObjects{}
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		if helper.IsNotEmpty(opt.Delimiter) {
 			result.Delimiter = opt.Delimiter
 		}

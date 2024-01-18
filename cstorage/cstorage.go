@@ -170,7 +170,7 @@ func (c CStorage) GetObjectUrl(bucket, key string) string {
 }
 
 // ListObjects return list objects by bucket, custom query using opts param (OptsListObjects)
-func (c CStorage) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error) {
+func (c CStorage) ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) ([]ObjectSummary, error) {
 	switch c.storageSelected {
 	case googleStorage:
 		return c.googleStorageClient.ListObjects(ctx, bucket, opts...)

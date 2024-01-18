@@ -22,3 +22,5 @@ go.work
 
 # Goland IDE
 .idea
+
+firebase-admin-sdk.json

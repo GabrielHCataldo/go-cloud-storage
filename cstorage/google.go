@@ -21,7 +21,7 @@ type iGoogleStorageClient interface {
 	PutObject(ctx context.Context, input PutObjectInput) error
 	GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error)
 	GetObjectUrl(bucket, key string) string
-	ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) ([]ObjectSummary, error)
+	ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) ([]ObjectSummary, error)
 	DeleteObject(ctx context.Context, input DeleteObjectInput) error
 	DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error
 	DeleteBucket(ctx context.Context, bucket string) error
@@ -77,7 +77,7 @@ func (g googleStorageClient) GetObjectUrl(bucket, key string) string {
 	return fmt.Sprintf(url, bucket, key)
 }
 
-func (g googleStorageClient) ListObjects(ctx context.Context, bucket string, opts ...OptsListObjects) (
+func (g googleStorageClient) ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) (
 	[]ObjectSummary, error) {
 	opt := GetOptListObjectsByParams(opts)
 	bkt := g.Client.Bucket(bucket)

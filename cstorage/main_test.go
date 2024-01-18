@@ -47,7 +47,7 @@ type testGetObjectByKey struct {
 type testListObjects struct {
 	name     string
 	cstorage *CStorage
-	opts     OptsListObjects
+	opts     *OptsListObjects
 	wantErr  bool
 }
 
@@ -413,7 +413,7 @@ func initTestPutObjectInput() PutObjectInput {
 	}
 }
 
-func initTestOptsListObjects() OptsListObjects {
+func initTestOptsListObjects() *OptsListObjects {
 	return NewOptsListObjects().SetPrefix("test").SetDelimiter("test")
 }
 

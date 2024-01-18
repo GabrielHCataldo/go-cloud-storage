@@ -88,7 +88,7 @@ func TestCStorageListObjects(t *testing.T) {
 			}
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
-			result, err := tt.cstorage.ListObjects(ctx, bucketNameDefault, tt.opts)
+			result, err := tt.cstorage.ListObjects(ctx, bucketNameDefault, tt.opts, nil)
 			if (err != nil) != tt.wantErr {
 				logger.Errorf("ListObjects() err = %v, wantErr = %v", err, tt.wantErr)
 				t.Fail()
