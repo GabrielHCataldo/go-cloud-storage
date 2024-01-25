@@ -115,7 +115,7 @@ func (c CStorage) CreateBucket(ctx context.Context, input CreateBucketInput) err
 	case awsStorage:
 		return c.awsS3.CreateBucket(ctx, input)
 	default:
-		return ErrWithoutStorageClient
+		return errWithoutStorageClient(2)
 	}
 }
 
@@ -127,7 +127,7 @@ func (c CStorage) PutObject(ctx context.Context, input PutObjectInput) error {
 	case awsStorage:
 		return c.awsS3.PutObject(ctx, input)
 	default:
-		return ErrWithoutStorageClient
+		return errWithoutStorageClient(2)
 	}
 }
 
@@ -153,7 +153,7 @@ func (c CStorage) GetObjectByKey(ctx context.Context, bucket, key string) (*Obje
 	case awsStorage:
 		return c.awsS3.GetObjectByKey(ctx, bucket, key)
 	default:
-		return nil, ErrWithoutStorageClient
+		return nil, errWithoutStorageClient(2)
 	}
 }
 
@@ -177,7 +177,7 @@ func (c CStorage) ListObjects(ctx context.Context, bucket string, opts ...*OptsL
 	case awsStorage:
 		return c.awsS3.ListObjects(ctx, bucket, opts...)
 	default:
-		return nil, ErrWithoutStorageClient
+		return nil, errWithoutStorageClient(2)
 	}
 }
 
@@ -189,7 +189,7 @@ func (c CStorage) DeleteObject(ctx context.Context, input DeleteObjectInput) err
 	case awsStorage:
 		return c.awsS3.DeleteObject(ctx, input)
 	default:
-		return ErrWithoutStorageClient
+		return errWithoutStorageClient(2)
 	}
 }
 
@@ -207,7 +207,8 @@ func (c CStorage) DeleteObjects(ctx context.Context, inputs ...DeleteObjectInput
 	return result
 }
 
-// DeleteObjectsByPrefix deletes all objects from a folder (prefix)
+// DeleteObjectsByPrefix deletes all objects from a folder (prefix), if the prefix entered does not exist, we will
+// return the error ErrPrefixNotExists
 func (c CStorage) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
 	switch c.storageSelected {
 	case googleStorage:
@@ -215,7 +216,7 @@ func (c CStorage) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixI
 	case awsStorage:
 		return c.awsS3.DeleteObjectsByPrefix(ctx, input)
 	default:
-		return ErrWithoutStorageClient
+		return errWithoutStorageClient(2)
 	}
 }
 
@@ -241,7 +242,7 @@ func (c CStorage) DeleteBucket(ctx context.Context, bucket string) error {
 	case awsStorage:
 		return c.awsS3.DeleteBucket(ctx, bucket)
 	default:
-		return ErrWithoutStorageClient
+		return errWithoutStorageClient(2)
 	}
 }
 
@@ -266,7 +267,7 @@ func (c CStorage) Disconnect() error {
 	case awsStorage:
 		return nil
 	default:
-		return ErrWithoutStorageClient
+		return errWithoutStorageClient(2)
 	}
 }
 

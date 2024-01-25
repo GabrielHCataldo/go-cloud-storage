@@ -47,6 +47,7 @@ type testGetObjectByKey struct {
 type testListObjects struct {
 	name     string
 	cstorage *CStorage
+	bucket   string
 	opts     *OptsListObjects
 	wantErr  bool
 }
@@ -244,24 +245,40 @@ func initListTestListObjects() []testListObjects {
 		{
 			name:     "success google",
 			cstorage: initGoogleStorage(),
+			bucket:   bucketNameDefault,
 			wantErr:  false,
 		},
 		{
 			name:     "success empty google",
 			cstorage: initGoogleStorage(),
+			bucket:   bucketNameDefault,
 			opts:     initTestOptsListObjects(),
 			wantErr:  false,
 		},
 		{
 			name:     "success aws",
 			cstorage: initAwsS3Storage(),
+			bucket:   bucketNameDefault,
 			wantErr:  false,
 		},
 		{
 			name:     "success empty aws",
 			cstorage: initAwsS3Storage(),
+			bucket:   bucketNameDefault,
 			opts:     initTestOptsListObjects(),
 			wantErr:  false,
+		},
+		{
+			name:     "failed google",
+			cstorage: initGoogleStorage(),
+			bucket:   "bucket-not-exists",
+			wantErr:  true,
+		},
+		{
+			name:     "failed aws",
+			cstorage: initAwsS3Storage(),
+			bucket:   "bucket-not-exists",
+			wantErr:  true,
 		},
 		{
 			name:     "failed instance",
@@ -320,12 +337,19 @@ func initListTestDeleteObjectsByPrefix() []testDeleteObjectsByPrefix {
 		{
 			name:     "failed google",
 			cstorage: initGoogleStorage(),
-			wantErr:  true,
+			input: DeletePrefixInput{
+				Bucket: "not-exists",
+				Prefix: "",
+			},
+			wantErr: true,
 		},
 		{
 			name:     "failed aws",
 			cstorage: initAwsS3Storage(),
-			wantErr:  true,
+			input: DeletePrefixInput{
+				Bucket: "not-exists",
+			},
+			wantErr: true,
 		},
 		{
 			name:     "failed instance",

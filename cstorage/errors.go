@@ -1,6 +1,11 @@
 package cstorage
 
-import "errors"
+import "github.com/GabrielHCataldo/go-errors/errors"
 
-var ErrWithoutStorageClient = errors.New("error cstorage: select storage client")
-var ErrPrefixNotExists = errors.New("error cstorage: prefix not found")
+var MsgErrWithoutStorageClient = "error cstorage: select storage client"
+var ErrWithoutStorageClient = errors.New(MsgErrWithoutStorageClient)
+
+func errWithoutStorageClient(skip int) error {
+	ErrWithoutStorageClient = errors.NewSkipCaller(skip+1, MsgErrWithoutStorageClient)
+	return ErrWithoutStorageClient
+}

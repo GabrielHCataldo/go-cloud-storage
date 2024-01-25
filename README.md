@@ -3,7 +3,7 @@ Go Cloud Storage
 <!--suppress ALL -->
 <img align="right" src="gopher-cloud.png" alt="">
 
-[![Project status](https://img.shields.io/badge/version-v1.0.6-vividgreen.svg)](https://github.com/GabrielHCataldo/go-cloud-storage/releases/tag/v1.0.6)
+[![Project status](https://img.shields.io/badge/version-v1.0.7-vividgreen.svg)](https://github.com/GabrielHCataldo/go-cloud-storage/releases/tag/v1.0.7)
 [![Go Report Card](https://goreportcard.com/badge/github.com/GabrielHCataldo/go-cloud-storage)](https://goreportcard.com/report/github.com/GabrielHCataldo/go-cloud-storage)
 [![Coverage Status](https://coveralls.io/repos/GabrielHCataldo/go-cloud-storage/badge.svg?branch=main&service=github)](https://coveralls.io/github/GabrielHCataldo/go-cloud-storage?branch=main)
 [![Open Source Helpers](https://www.codetriage.com/gabrielhcataldo/go-cloud-storage/badges/users.svg)](https://www.codetriage.com/gabrielhcataldo/go-cloud-storage)

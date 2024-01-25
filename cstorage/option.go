@@ -39,11 +39,11 @@ func (o *OptsListObjects) SetPrefix(s string) *OptsListObjects {
 	return o
 }
 
-// GetOptListObjectsByParams assembles the OptsGoogleFind object from optional parameters.
-func GetOptListObjectsByParams(opts []*OptsListObjects) *OptsListObjects {
+// MergeOptsListObjectsByParams assembles the OptsListObjects object from optional parameters.
+func MergeOptsListObjectsByParams(opts []*OptsListObjects) *OptsListObjects {
 	result := &OptsListObjects{}
 	for _, opt := range opts {
-		if opt == nil {
+		if helper.IsNil(opt) {
 			continue
 		}
 		if helper.IsNotEmpty(opt.Delimiter) {

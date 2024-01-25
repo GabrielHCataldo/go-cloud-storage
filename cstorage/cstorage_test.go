@@ -88,7 +88,7 @@ func TestCStorageListObjects(t *testing.T) {
 			}
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
-			result, err := tt.cstorage.ListObjects(ctx, bucketNameDefault, tt.opts, nil)
+			result, err := tt.cstorage.ListObjects(ctx, tt.bucket, tt.opts, nil)
 			if (err != nil) != tt.wantErr {
 				logger.Errorf("ListObjects() err = %v, wantErr = %v", err, tt.wantErr)
 				t.Fail()
@@ -142,7 +142,9 @@ func TestCStorageDeleteObjectsByPrefix(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				logger.Errorf("DeleteObjectsByPrefix() err = %v, wantErr = %v", err, tt.wantErr)
 				t.Fail()
+				return
 			}
+			logger.Info("result err:", err)
 		})
 	}
 }
