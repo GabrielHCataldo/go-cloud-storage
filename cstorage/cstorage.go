@@ -207,8 +207,7 @@ func (c CStorage) DeleteObjects(ctx context.Context, inputs ...DeleteObjectInput
 	return result
 }
 
-// DeleteObjectsByPrefix deletes all objects from a folder (prefix), if the prefix entered does not exist, we will
-// return the error ErrPrefixNotExists
+// DeleteObjectsByPrefix deletes all objects from a folder (prefix)
 func (c CStorage) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
 	switch c.storageSelected {
 	case googleStorage:
