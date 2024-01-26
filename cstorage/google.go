@@ -33,12 +33,11 @@ func newGoogleStorageClient(ctx context.Context, opts ...option.ClientOption) (i
 	client, err := storage.NewClient(ctx, opts...)
 	return googleStorageClient{
 		Client: client,
-	}, errors.NewSkipCaller(3, err)
+	}, err
 }
 
 func (g googleStorageClient) CreateBucket(ctx context.Context, input CreateBucketInput) error {
-	err := g.Client.Bucket(input.Bucket).Create(ctx, input.ProjectId, &storage.BucketAttrs{Location: input.Location})
-	return errors.NewSkipCaller(3, err)
+	return g.Client.Bucket(input.Bucket).Create(ctx, input.ProjectId, &storage.BucketAttrs{Location: input.Location})
 }
 
 func (g googleStorageClient) PutObject(ctx context.Context, input PutObjectInput) error {
@@ -50,14 +49,14 @@ func (g googleStorageClient) PutObject(ctx context.Context, input PutObjectInput
 		_, err = fw.Write(bytesContent)
 	}
 	_ = fw.Close()
-	return errors.NewSkipCaller(3, err)
+	return err
 }
 
 func (g googleStorageClient) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
 	obj := g.Client.Bucket(bucket).Object(key)
 	attrs, err := obj.Attrs(ctx)
 	if helper.IsNotNil(err) {
-		return nil, errors.NewSkipCaller(3, err)
+		return nil, err
 	}
 	var bs []byte
 	reader, _ := obj.NewReader(ctx)
@@ -65,7 +64,7 @@ func (g googleStorageClient) GetObjectByKey(ctx context.Context, bucket, key str
 	objResult := parseGoogleStorageObject(attrs)
 	objResult.Url = g.GetObjectUrl(bucket, key)
 	objResult.Content = bs
-	return &objResult, errors.NewSkipCaller(3, err)
+	return &objResult, err
 }
 
 func (g googleStorageClient) GetObjectUrl(bucket, key string) string {
@@ -96,13 +95,12 @@ func (g googleStorageClient) ListObjects(ctx context.Context, bucket string, opt
 			result = append(result, objResult)
 		}
 	}
-	return result, errors.NewSkipCaller(3, rErr)
+	return result, rErr
 }
 
 func (g googleStorageClient) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
 	bkt := g.Client.Bucket(input.Bucket)
-	err := bkt.Object(input.Key).Delete(ctx)
-	return errors.NewSkipCaller(3, err)
+	return bkt.Object(input.Key).Delete(ctx)
 }
 
 func (g googleStorageClient) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
@@ -120,17 +118,15 @@ func (g googleStorageClient) DeleteObjectsByPrefix(ctx context.Context, input De
 			rErr = bkt.Object(obj.Name).Delete(ctx)
 		}
 	}
-	return errors.NewSkipCaller(3, rErr)
+	return rErr
 }
 
 func (g googleStorageClient) DeleteBucket(ctx context.Context, bucket string) error {
-	err := g.Client.Bucket(bucket).Delete(ctx)
-	return errors.NewSkipCaller(3, err)
+	return g.Client.Bucket(bucket).Delete(ctx)
 }
 
 func (g googleStorageClient) Disconnect() error {
-	err := g.Client.Close()
-	return errors.NewSkipCaller(3, err)
+	return g.Client.Close()
 }
 
 func (g googleStorageClient) SimpleDisconnect() {

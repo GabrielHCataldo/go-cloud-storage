@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/GabrielHCataldo/go-errors/errors"
 	"github.com/GabrielHCataldo/go-helper/helper"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -46,7 +45,7 @@ func (a awsS3Client) CreateBucket(ctx context.Context, input CreateBucketInput) 
 			LocationConstraint: types.BucketLocationConstraint(region),
 		},
 	})
-	return errors.NewSkipCaller(3, err)
+	return err
 }
 
 func (a awsS3Client) PutObject(ctx context.Context, input PutObjectInput) error {
@@ -59,7 +58,7 @@ func (a awsS3Client) PutObject(ctx context.Context, input PutObjectInput) error 
 			Key:         aws.String(input.Key),
 		})
 	}
-	return errors.NewSkipCaller(3, err)
+	return err
 }
 
 func (a awsS3Client) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
@@ -68,7 +67,7 @@ func (a awsS3Client) GetObjectByKey(ctx context.Context, bucket, key string) (*O
 		Key:    aws.String(key),
 	})
 	if helper.IsNotNil(err) {
-		return nil, errors.NewSkipCaller(3, err)
+		return nil, err
 	}
 	bs, _ := io.ReadAll(obj.Body)
 	objResult := parseAwsS3StorageObject(obj)
@@ -99,7 +98,7 @@ func (a awsS3Client) ListObjects(ctx context.Context, bucket string, opts ...*Op
 			result = append(result, objResult)
 		}
 	}
-	return result, errors.NewSkipCaller(3, err)
+	return result, err
 }
 
 func (a awsS3Client) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
@@ -107,7 +106,7 @@ func (a awsS3Client) DeleteObject(ctx context.Context, input DeleteObjectInput) 
 		Bucket: aws.String(input.Bucket),
 		Key:    aws.String(input.Key),
 	})
-	return errors.NewSkipCaller(3, err)
+	return err
 }
 
 func (a awsS3Client) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
@@ -123,12 +122,12 @@ func (a awsS3Client) DeleteObjectsByPrefix(ctx context.Context, input DeletePref
 			})
 		}
 	}
-	return errors.NewSkipCaller(3, err)
+	return err
 }
 
 func (a awsS3Client) DeleteBucket(ctx context.Context, bucket string) error {
 	_, err := a.Client.DeleteBucket(ctx, &s3.DeleteBucketInput{
 		Bucket: aws.String(bucket),
 	})
-	return errors.NewSkipCaller(3, err)
+	return err
 }
