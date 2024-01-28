@@ -20,6 +20,8 @@ const (
 	MimeTypeJs   MimeType = "text/javascript; charset=utf-8"
 	MimeTypeJson MimeType = "application/json"
 	MimeTypePng  MimeType = "image/png"
+	MimeTypeMp4  MimeType = "video/mp4"
+	MimeTypeMp3  MimeType = "audio/mp3"
 	MimeTypeSvg  MimeType = "image/svg+xml"
 	MimeTypeWasm MimeType = "application/wasm"
 	MimeTypeWebp MimeType = "image/webp"
