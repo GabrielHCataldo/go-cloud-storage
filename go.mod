@@ -4,9 +4,9 @@ go 1.21.3
 
 require (
 	cloud.google.com/go/storage v1.36.0
-	github.com/GabrielHCataldo/go-errors v1.1.0
-	github.com/GabrielHCataldo/go-helper v1.3.3
-	github.com/GabrielHCataldo/go-logger v1.1.9
+	github.com/GabrielHCataldo/go-errors v1.1.1
+	github.com/GabrielHCataldo/go-helper v1.3.4
+	github.com/GabrielHCataldo/go-logger v1.2.0
 	github.com/aws/aws-sdk-go-v2 v1.24.1
 	github.com/aws/aws-sdk-go-v2/config v1.26.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.48.0
