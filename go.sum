@@ -16,6 +16,8 @@ github.com/GabrielHCataldo/go-helper v1.3.4 h1:Rcf7gRbk6oI/YrZMIcieOotA2nldAoIje
 github.com/GabrielHCataldo/go-helper v1.3.4/go.mod h1:+whI36aUg1BfvLpZWJ8j81+d5iPuxl58ApOJqTIliCU=
 github.com/GabrielHCataldo/go-helper v1.3.6 h1:0ncYv6UwqMstErCx+e620Gm5XBwkJMrAzDZmGcFsxGM=
 github.com/GabrielHCataldo/go-helper v1.3.6/go.mod h1:+whI36aUg1BfvLpZWJ8j81+d5iPuxl58ApOJqTIliCU=
+github.com/GabrielHCataldo/go-helper v1.3.7 h1:aAUdFNJJyx6YCx9q4+1qaO/jmBkztDwwZiLtnip0kcI=
+github.com/GabrielHCataldo/go-helper v1.3.7/go.mod h1:+whI36aUg1BfvLpZWJ8j81+d5iPuxl58ApOJqTIliCU=
 github.com/GabrielHCataldo/go-logger v1.2.0 h1:fGdlkx+ihU7nhNYTvi/KOlLb2WEHmJrCuIFU9/zGQ1g=
 github.com/GabrielHCataldo/go-logger v1.2.0/go.mod h1:Q7+M9m9gu1MtgGiFkoYOHtobLLM/kJCPZVhszIJtsJ0=
 github.com/aws/aws-sdk-go-v2 v1.24.1 h1:xAojnj+ktS95YZlDf0zxWBkbFtymPeDP+rvUQIH3uAU=
