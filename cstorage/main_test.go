@@ -26,27 +26,27 @@ type testStruct struct {
 type testCreateBucket struct {
 	name     string
 	input    CreateBucketInput
-	cstorage *CStorage
+	cstorage CStorage
 	wantErr  bool
 }
 
 type testPutObject struct {
 	name     string
 	input    PutObjectInput
-	cstorage *CStorage
+	cstorage CStorage
 	wantErr  bool
 }
 
 type testGetObjectByKey struct {
 	name     string
 	key      string
-	cstorage *CStorage
+	cstorage CStorage
 	wantErr  bool
 }
 
 type testListObjects struct {
 	name     string
-	cstorage *CStorage
+	cstorage CStorage
 	bucket   string
 	opts     *OptsListObjects
 	wantErr  bool
@@ -54,28 +54,28 @@ type testListObjects struct {
 
 type testDeleteObject struct {
 	name     string
-	cstorage *CStorage
+	cstorage CStorage
 	input    DeleteObjectInput
 	wantErr  bool
 }
 
 type testDeleteObjectsByPrefix struct {
 	name     string
-	cstorage *CStorage
+	cstorage CStorage
 	input    DeletePrefixInput
 	wantErr  bool
 }
 
 type testDeleteBucket struct {
 	name     string
-	cstorage *CStorage
+	cstorage CStorage
 	bucket   string
 	wantErr  bool
 }
 
 type testDisconnect struct {
 	name     string
-	cstorage *CStorage
+	cstorage CStorage
 	wantErr  bool
 }
 
@@ -83,7 +83,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func initGoogleStorage() *CStorage {
+func initGoogleStorage() CStorage {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	cs, err := NewGoogleStorage(ctx, option.WithCredentialsFile("../firebase-admin-sdk.json"))
@@ -94,7 +94,7 @@ func initGoogleStorage() *CStorage {
 	return cs
 }
 
-func initAwsS3Storage() *CStorage {
+func initAwsS3Storage() CStorage {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	cfg, err := config.LoadDefaultConfig(ctx)
@@ -102,7 +102,7 @@ func initAwsS3Storage() *CStorage {
 		logger.Error("error get aws config default:", err)
 		return nil
 	}
-	cs, err := NewAwsS3Storage(cfg)
+	cs := NewAwsS3Storage(cfg)
 	if helper.IsNotNil(err) {
 		logger.Error("error start aws s3 storage:", err)
 		return nil
@@ -114,7 +114,7 @@ func initAwsS3Storage() *CStorage {
 	return cs
 }
 
-func initBucket(cs *CStorage) {
+func initBucket(cs CStorage) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	err := cs.CreateBucket(ctx, CreateBucketInput{
@@ -128,7 +128,7 @@ func initBucket(cs *CStorage) {
 	}
 }
 
-func initObject(cs *CStorage) {
+func initObject(cs CStorage) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
 	err := cs.PutObject(ctx, PutObjectInput{
@@ -145,11 +145,12 @@ func initObject(cs *CStorage) {
 }
 
 func initListTestCreateBucket() []testCreateBucket {
+	googleStorage := initGoogleStorage()
 	return []testCreateBucket{
 		{
 			name:     "success google",
 			input:    initTestCreateBucketInput(""),
-			cstorage: initGoogleStorage(),
+			cstorage: googleStorage,
 			wantErr:  false,
 		},
 		{
@@ -166,11 +167,6 @@ func initListTestCreateBucket() []testCreateBucket {
 		{
 			name:     "failed aws",
 			cstorage: initAwsS3Storage(),
-			wantErr:  true,
-		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
 			wantErr:  true,
 		},
 	}
@@ -200,11 +196,6 @@ func initListTestPutObject() []testPutObject {
 			cstorage: initAwsS3Storage(),
 			wantErr:  true,
 		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
-			wantErr:  true,
-		},
 	}
 }
 
@@ -230,11 +221,6 @@ func initListTestGetObjectByKey() []testGetObjectByKey {
 		{
 			name:     "failed aws",
 			cstorage: initAwsS3Storage(),
-			wantErr:  true,
-		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
 			wantErr:  true,
 		},
 	}
@@ -280,11 +266,6 @@ func initListTestListObjects() []testListObjects {
 			bucket:   "bucket-not-exists",
 			wantErr:  true,
 		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
-			wantErr:  true,
-		},
 	}
 }
 
@@ -310,11 +291,6 @@ func initListTestDeleteObject() []testDeleteObject {
 		{
 			name:     "failed aws",
 			cstorage: initAwsS3Storage(),
-			wantErr:  true,
-		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
 			wantErr:  true,
 		},
 	}
@@ -351,11 +327,6 @@ func initListTestDeleteObjectsByPrefix() []testDeleteObjectsByPrefix {
 			},
 			wantErr: true,
 		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
-			wantErr:  true,
-		},
 	}
 }
 
@@ -383,11 +354,6 @@ func initListTestDeleteBucket() []testDeleteBucket {
 			cstorage: initAwsS3Storage(),
 			wantErr:  true,
 		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
-			wantErr:  true,
-		},
 	}
 }
 
@@ -402,11 +368,6 @@ func initListTestDisconnect() []testDisconnect {
 			name:     "success aws",
 			cstorage: initAwsS3Storage(),
 			wantErr:  false,
-		},
-		{
-			name:     "failed instance",
-			cstorage: &CStorage{},
-			wantErr:  true,
 		},
 	}
 }

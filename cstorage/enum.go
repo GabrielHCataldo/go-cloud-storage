@@ -1,12 +1,6 @@
 package cstorage
 
 type MimeType string
-type storageSelected string
-
-const (
-	googleStorage storageSelected = "GOOGLE"
-	awsStorage    storageSelected = "AWS"
-)
 
 //goland:noinspection GoUnusedConst
 const (
@@ -31,38 +25,3 @@ const (
 func (f MimeType) String() string {
 	return string(f)
 }
-
-//func (f MimeType) Extension() string {
-//	switch f {
-//	case MimeTypePdf:
-//		return ".pdf"
-//	case MimeTypeText:
-//		return ".txt"
-//	case MimeTypeAvif:
-//		return ".avif"
-//	case MimeTypeCss:
-//		return ".css"
-//	case MimeTypeGif:
-//		return ".gif"
-//	case MimeTypeHtml:
-//		return ".html"
-//	case MimeTypeJpeg:
-//		return ".jpeg"
-//	case MimeTypeJs:
-//		return ".js"
-//	case MimeTypeJson:
-//		return ".json"
-//	case MimeTypePng:
-//		return ".png"
-//	case MimeTypeWasm:
-//		return ".wasm"
-//	case MimeTypeWebp:
-//		return ".webp"
-//	case MimeTypeXml:
-//		return ".xml"
-//	case MimeTypeSvg:
-//		return ".svg"
-//	default:
-//		return ""
-//	}
-//}

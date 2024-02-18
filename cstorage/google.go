@@ -13,35 +13,26 @@ import (
 )
 
 type googleStorageClient struct {
-	*storage.Client
+	client *storage.Client
 }
 
-type iGoogleStorageClient interface {
-	CreateBucket(ctx context.Context, input CreateBucketInput) error
-	PutObject(ctx context.Context, input PutObjectInput) error
-	GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error)
-	GetObjectUrl(bucket, key string) string
-	ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) ([]ObjectSummary, error)
-	DeleteObject(ctx context.Context, input DeleteObjectInput) error
-	DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error
-	DeleteBucket(ctx context.Context, bucket string) error
-	Disconnect() error
-	SimpleDisconnect()
-}
-
-func newGoogleStorageClient(ctx context.Context, opts ...option.ClientOption) (iGoogleStorageClient, error) {
+// NewGoogleStorage new instance of connection with Google storage, to close it just use CStorage.Disconnect() or CStorage.SimpleDisconnect()
+func NewGoogleStorage(ctx context.Context, opts ...option.ClientOption) (i CStorage, err error) {
 	client, err := storage.NewClient(ctx, opts...)
-	return googleStorageClient{
-		Client: client,
-	}, err
+	if helper.IsNil(err) {
+		i = &googleStorageClient{
+			client: client,
+		}
+	}
+	return i, err
 }
 
 func (g googleStorageClient) CreateBucket(ctx context.Context, input CreateBucketInput) error {
-	return g.Client.Bucket(input.Bucket).Create(ctx, input.ProjectId, &storage.BucketAttrs{Location: input.Location})
+	return g.client.Bucket(input.Bucket).Create(ctx, input.ProjectId, &storage.BucketAttrs{Location: input.Location})
 }
 
 func (g googleStorageClient) PutObject(ctx context.Context, input PutObjectInput) error {
-	obj := g.Client.Bucket(input.Bucket).Object(input.Key)
+	obj := g.client.Bucket(input.Bucket).Object(input.Key)
 	fw := obj.NewWriter(ctx)
 	fw.ContentType = input.MimeType.String()
 	bytesContent, err := helper.ConvertToBytes(input.Content)
@@ -52,8 +43,21 @@ func (g googleStorageClient) PutObject(ctx context.Context, input PutObjectInput
 	return err
 }
 
+func (g googleStorageClient) PutObjects(ctx context.Context, inputs ...PutObjectInput) []PutObjectOutput {
+	var result []PutObjectOutput
+	for _, input := range inputs {
+		err := g.PutObject(ctx, input)
+		result = append(result, PutObjectOutput{
+			Bucket: input.Bucket,
+			Key:    input.Key,
+			Err:    err,
+		})
+	}
+	return result
+}
+
 func (g googleStorageClient) GetObjectByKey(ctx context.Context, bucket, key string) (*Object, error) {
-	obj := g.Client.Bucket(bucket).Object(key)
+	obj := g.client.Bucket(bucket).Object(key)
 	attrs, err := obj.Attrs(ctx)
 	if helper.IsNotNil(err) {
 		return nil, err
@@ -75,7 +79,7 @@ func (g googleStorageClient) GetObjectUrl(bucket, key string) string {
 func (g googleStorageClient) ListObjects(ctx context.Context, bucket string, opts ...*OptsListObjects) ([]ObjectSummary,
 	error) {
 	opt := MergeOptsListObjectsByParams(opts)
-	bkt := g.Client.Bucket(bucket)
+	bkt := g.client.Bucket(bucket)
 	objs := bkt.Objects(ctx, &storage.Query{
 		Delimiter: opt.Delimiter,
 		Prefix:    opt.Prefix,
@@ -99,12 +103,25 @@ func (g googleStorageClient) ListObjects(ctx context.Context, bucket string, opt
 }
 
 func (g googleStorageClient) DeleteObject(ctx context.Context, input DeleteObjectInput) error {
-	bkt := g.Client.Bucket(input.Bucket)
+	bkt := g.client.Bucket(input.Bucket)
 	return bkt.Object(input.Key).Delete(ctx)
 }
 
+func (g googleStorageClient) DeleteObjects(ctx context.Context, inputs ...DeleteObjectInput) []DeleteObjectsOutput {
+	var result []DeleteObjectsOutput
+	for _, input := range inputs {
+		err := g.DeleteObject(ctx, input)
+		result = append(result, DeleteObjectsOutput{
+			Bucket: input.Bucket,
+			Key:    input.Key,
+			Err:    err,
+		})
+	}
+	return result
+}
+
 func (g googleStorageClient) DeleteObjectsByPrefix(ctx context.Context, input DeletePrefixInput) error {
-	bkt := g.Client.Bucket(input.Bucket)
+	bkt := g.client.Bucket(input.Bucket)
 	objs := bkt.Objects(ctx, &storage.Query{Prefix: input.Prefix})
 	var rErr error
 	for {
@@ -121,15 +138,40 @@ func (g googleStorageClient) DeleteObjectsByPrefix(ctx context.Context, input De
 	return rErr
 }
 
+func (g googleStorageClient) DeleteObjectsByPrefixes(ctx context.Context, inputs ...DeletePrefixInput) []DeletePrefixOutput {
+	var result []DeletePrefixOutput
+	for _, input := range inputs {
+		err := g.DeleteObjectsByPrefix(ctx, input)
+		result = append(result, DeletePrefixOutput{
+			Bucket: input.Bucket,
+			Prefix: input.Prefix,
+			Err:    err,
+		})
+	}
+	return result
+}
+
 func (g googleStorageClient) DeleteBucket(ctx context.Context, bucket string) error {
-	return g.Client.Bucket(bucket).Delete(ctx)
+	return g.client.Bucket(bucket).Delete(ctx)
+}
+
+func (g googleStorageClient) DeleteBuckets(ctx context.Context, buckets ...string) []DeleteBucketsOutput {
+	var result []DeleteBucketsOutput
+	for _, bucket := range buckets {
+		err := g.DeleteBucket(ctx, bucket)
+		result = append(result, DeleteBucketsOutput{
+			Bucket: bucket,
+			Err:    err,
+		})
+	}
+	return result
 }
 
 func (g googleStorageClient) Disconnect() error {
-	return g.Client.Close()
+	return g.client.Close()
 }
 
 func (g googleStorageClient) SimpleDisconnect() {
-	_ = g.Client.Close()
+	_ = g.client.Close()
 	logger.InfoSkipCaller(3, "Connection to google storage closed.")
 }

@@ -13,6 +13,7 @@ func TestCStorageCreateBucket(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 			defer cancel()
+			tt.cstorage.SimpleDisconnect()
 			err := tt.cstorage.CreateBucket(ctx, tt.input)
 			if (err != nil) != tt.wantErr {
 				logger.Errorf("CreateBucket() err = %v, wantErr = %v", err, tt.wantErr)
